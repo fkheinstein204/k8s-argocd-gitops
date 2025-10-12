@@ -6,15 +6,9 @@ metadata:
 spec:
   project: homelab
   source:
-    repoURL: https://charts.jetstack.io
-    chart: cert-manager
-    targetRevision: v1.13.3
-    helm:
-      values: |
-        installCRDs: true
-        global:
-          leaderElection:
-            namespace: cert-manager
+    repoURL: https://github.com/fkheinstein204/k8s-argocd-gitops.git
+    targetRevision: main
+    path: infrastructure/cert-manager
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
