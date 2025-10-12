@@ -1,0 +1,16 @@
+# Ignore backup files
+*.bak
+*.backup
+*~
+
+# Ignore temp files
+*.tmp
+.DS_Store
+
+# Ignore secrets (use sealed-secrets instead)
+*secret*.yaml
+!sealed-secret*.yaml
+
+# Ignore local test files
+test/
+tmp/

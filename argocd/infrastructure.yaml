@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/fkheinstein204/k8s-argocd-gitops.git
+        revision: main
+        directories:
+          - path: infrastructure/*
+  template:
+    metadata:
+      name: '{{path.basename}}'
+    spec:
+      project: homelab
+      source:
+        repoURL: https://github.com/fkheinstein204/k8s-argocd-gitops.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
