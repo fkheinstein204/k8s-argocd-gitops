@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: homelab
+  namespace: argocd
+spec:
+  description: Homelab infrastructure and applications
+
+  # Allow deploying to any namespace
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+
+  # Allow all sources
+  sourceRepos:
+    - '*'
+
+  # Allow all resource types
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  # Allow all namespaced resources
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

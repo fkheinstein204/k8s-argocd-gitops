@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure
+  namespace: argocd
+spec:
+  goTemplate: true
+  generators:
+    - git:
+        repoURL: https://github.com/fkheinstein204/k8s-argocd-gitops.git
+        revision: main
+        files:
+          - path: infrastructure/*/app.yaml
+  template:
+    metadata:
+      name: '{{.metadata.name}}'
+      namespace: argocd
+    spec:
+      project: '{{.spec.project}}'
+      source:
+        repoURL: '{{.spec.source.repoURL}}'
+        targetRevision: '{{.spec.source.targetRevision}}'
+        {{if .spec.source.chart}}
+        chart: '{{.spec.source.chart}}'
+        {{end}}
+        {{if .spec.source.path}}
+        path: '{{.spec.source.path}}'
+        {{end}}
+        {{if .spec.source.helm}}
+        helm:
+          values: |
+{{.spec.source.helm.values | indent 12}}
+        {{end}}
+      destination:
+        server: '{{.spec.destination.server}}'
+        namespace: '{{.spec.destination.namespace}}'
+      {{if .spec.syncPolicy}}
+      syncPolicy:
+        {{if .spec.syncPolicy.automated}}
+        automated:
+          prune: {{.spec.syncPolicy.automated.prune}}
+          selfHeal: {{.spec.syncPolicy.automated.selfHeal}}
+        {{end}}
+        {{if .spec.syncPolicy.syncOptions}}
+        syncOptions:
+        {{range .spec.syncPolicy.syncOptions}}
+          - {{.}}
+        {{end}}
+        {{end}}
+      {{end}}
