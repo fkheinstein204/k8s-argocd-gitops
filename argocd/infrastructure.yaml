@@ -4,24 +4,41 @@ metadata:
   name: infrastructure
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - git:
         repoURL: https://github.com/fkheinstein204/k8s-argocd-gitops.git
         revision: main
-        directories:
-          - path: infrastructure/*
+        files:
+          - path: infrastructure/*/app.yaml
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{.metadata.name}}'
+      namespace: argocd
     spec:
-      project: homelab
+      project: '{{.spec.project}}'
       source:
-        repoURL: https://github.com/fkheinstein204/k8s-argocd-gitops.git
-        targetRevision: main
-        path: '{{path}}'
+        repoURL: '{{.spec.source.repoURL}}'
+        {{- if .spec.source.targetRevision }}
+        targetRevision: '{{.spec.source.targetRevision}}'
+        {{- end }}
+        {{- if .spec.source.chart }}
+        chart: '{{.spec.source.chart}}'
+        {{- end }}
+        {{- if .spec.source.path }}
+        path: '{{.spec.source.path}}'
+        {{- end }}
+        {{- if .spec.source.helm }}
+        helm:
+{{ .spec.source.helm | toYaml | indent 10 }}
+        {{- end }}
       destination:
-        server: https://kubernetes.default.svc
+        server: '{{.spec.destination.server}}'
+        {{- if .spec.destination.namespace }}
+        namespace: '{{.spec.destination.namespace}}'
+        {{- end }}
+      {{- if .spec.syncPolicy }}
       syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
+{{ .spec.syncPolicy | toYaml | indent 8 }}
+      {{- end }}
